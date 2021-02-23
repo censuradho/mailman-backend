@@ -5,15 +5,14 @@ import cors from 'cors'
 
 import './database'
 
+import routes from './routes'
+
 const app = express()
 
 dotenv.config()
 
 app.use(cors())
 app.use(express.json())
-
-app.get(`/teste`, (req,res) => {
-  res.json(process.env.BASE_URL)
-})
+app.use(routes)
 
 export default app
