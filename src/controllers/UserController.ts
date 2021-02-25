@@ -1,11 +1,9 @@
 import { Request, Response } from 'express'
-import UserRepository from 'src/repositories/UserRepository'
+import UserRepository from '../repositories/UserRepository'
 import { getCustomRepository } from 'typeorm'
 
-interface User {
-  email: string,
-  name: string
-}
+import User from '@models/User'
+
 
 class UserController {
   async store (req: Request, res: Response) {

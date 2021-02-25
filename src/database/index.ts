@@ -1,4 +1,28 @@
-import { create } from 'domain'
-import { createConnection } from 'typeorm'
+import { createConnection, getConnectionOptions } from 'typeorm'
+import dotenv from 'dotenv'
 
-createConnection()
+dotenv.config()
+
+type Db = 'production' | 'test' | 'development'
+
+function getDatabase  () {
+  const db = {
+    production: 'production',
+    test: 'test',
+    development: 'development'
+  }
+
+ 
+
+  return db[process.env.NODE_ENV as Db]
+}
+
+export default async () => {
+  const options = await getConnectionOptions()
+
+  return await createConnection(
+    Object.assign(options, {
+      database: getDatabase()
+    })
+  )
+}

@@ -1,4 +1,4 @@
-import Survey from "src/models/Survey";
+import Survey from "@models/Survey";
 import { EntityRepository, Repository } from "typeorm";
 
 @EntityRepository(Survey)
