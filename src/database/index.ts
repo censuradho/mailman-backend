@@ -1,5 +1,6 @@
 import { createConnection, getConnectionOptions } from 'typeorm'
 import dotenv from 'dotenv'
+import { resolve } from 'path'
 
 dotenv.config()
 
@@ -8,13 +9,15 @@ type Db = 'production' | 'test' | 'development'
 function getDatabase  () {
   const db = {
     production: 'production',
-    test: 'test',
+    test: `${resolve(__dirname, '..', 'database', 'db.test.sqlite')}`,
     development: 'development'
   }
 
- 
-
   return db[process.env.NODE_ENV as Db]
+}
+
+function getType () {
+  return process.env.NODE_ENV === 'test' ? 'sqlite' : 'postgres'
 }
 
 export default async () => {
@@ -22,7 +25,8 @@ export default async () => {
 
   return await createConnection(
     Object.assign(options, {
-      database: getDatabase()
+      database: getDatabase(),
+      type: getType()
     })
   )
 }
