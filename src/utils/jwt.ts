@@ -2,14 +2,17 @@ import jwt from 'jsonwebtoken'
 import { promisify } from 'util'
 
 type Verify = (token: string, secretOrPublicKey: jwt.Secret, options?: jwt.VerifyOptions | undefined) => Promise<object | string>
+type Sign = (payload: string | object | Buffer, secretOrPrivateKey: jwt.Secret, options?: jwt.SignOptions | undefined) => Promise<string | undefined>
 
-const sign = promisify(jwt.sign)
+const sign: Sign = promisify(jwt.sign)
 const verify: Verify = promisify(jwt.verify)
 
-export async function genereteToken (payload: string | object | Buffer) {
-  return await sign(payload, process.env.JWT_SECRET)
+export async function genereteToken (payload: string | object | Buffer = {}) {
+  return await sign(payload, String(process.env.JWT_SECRET), { 
+    expiresIn: '1d',
+  })
 }
 
 export async function  verifyToken(token:string) {
-  return await verify(token, process.env.JWT_SECRET)
+  return await verify(token, String(process.env.JWT_SECRET))
 }

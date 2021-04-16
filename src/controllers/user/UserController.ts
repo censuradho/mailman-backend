@@ -8,8 +8,10 @@ import { generateHash } from '@utils/bcrypt'
 import User from '@models/User'
 
 class UserController {
+
   async store (req: Request, res: Response) {
-    const { email, username, password }: Pick<User, 'email' | 'username' | 'password'> = req.body
+
+    const { email, username, password, last_name, name }: User = req.body
 
     try {
       const userRepository = getCustomRepository(UserRepository)
@@ -20,14 +22,15 @@ class UserController {
 
       const passHashed = await generateHash(password)
 
-      const user = userRepository.create({ email, username, password: passHashed })
+      const user = userRepository.create({ email, username, password: passHashed, last_name, name })
 
       await userRepository.save(user)
   
-      return res.status(201).json(user)
+      const { password: passwordStored, ...userCreated } = user
+      return res.status(201).json(userCreated)
     } catch (err) {
       console.log(err)
-      return res.sendStatus(500)
+      return res.status(500).send(err)
     }
   }
 
@@ -36,7 +39,11 @@ class UserController {
       const userRepository = getCustomRepository(UserRepository)
       const { paginate } = res.locals
 
-      const users = await userRepository.find({ skip: paginate._page, take: paginate._limit })
+      const users = await userRepository.find({ 
+        skip: +paginate._page, 
+        take: +paginate._limit,
+      })
+
       const userCount = await userRepository.count()
 
       return res.json({
@@ -45,6 +52,7 @@ class UserController {
       })
 
     } catch (err) {
+      console.log(err)
       return res.status(500).send(err)
     }
   } 
@@ -52,14 +60,19 @@ class UserController {
   async show (req: Request, res: Response) {
     try {
 
-      const id = parseInt(req.params.id, 10)
+      const id = req.params.id
       
       const userRepository = getCustomRepository(UserRepository)
       
-      const user = await userRepository.findOne({ id })
+      const User = await userRepository.findOne({ 
+        where: id, 
+        select: ['username', 'email', 'created_at', 'updated_at', 'id']
+      })
       
-      if (!user) return res.sendStatus(204)
+      if (!User) return res.sendStatus(204)
     
+      const { password, ...user} = User
+
       return res.json(user)
     } catch (err) {
       return res.json(err)
@@ -67,9 +80,9 @@ class UserController {
   }
 
   async update (req: Request, res: Response) {
-    const id = parseInt(req.params.id, 10)
+    const id = req.params.id
 
-    const { created_at, updated_at, ...user}: Partial<User> = req.body
+    const user: Partial<User> = req.body
 
     try {
       const userRepository = getCustomRepository(UserRepository)
@@ -80,22 +93,22 @@ class UserController {
 
       await userRepository
         .createQueryBuilder()
-        .update({
-          updated_at: new Date(),
-          ...user
+        .update(User)
+        .set({
+          ...user,
+          updated_at: new Date()
         })
-        .set(user)
         .where('id = :id', { id })
         .execute()
 
       return res.sendStatus(201)
     } catch (err) {
-      return res.sendStatus(500)
+      return res.status(500).send(err)
     }
   }
 
   async delete (req: Request, res: Response) {
-    const id = parseInt(req.params.id, 10)
+    const id = req.params.id
 
     try {
       const userRepository = getCustomRepository(UserRepository)

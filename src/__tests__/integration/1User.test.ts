@@ -3,6 +3,8 @@ import request from 'supertest'
 import app from '../../app'
 import createConnection from '../../database'
 
+import * as jwt from '@utils/jwt'
+
 describe('Users', () => {
   const user = {
     email: 'censuradho@gmail.com',
@@ -12,7 +14,6 @@ describe('Users', () => {
 
   beforeAll(async () => {
     const connection = await createConnection()
-
     await connection.runMigrations()
   })
 
@@ -33,7 +34,11 @@ describe('Users', () => {
   })
 
   it ('should be return a list of users', async () => {
-    const response = await request(app).get(`${process.env.BASE_URL}/user`)
+    const token = await jwt.genereteToken()
+
+    const response = await request(app)
+    .get(`${process.env.BASE_URL}/user`)
+    .set('Authorization', `Bearer ${token}`)
 
     expect(response.status).toBe(200)
   })

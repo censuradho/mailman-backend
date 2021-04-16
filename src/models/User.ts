@@ -1,24 +1,44 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, OneToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { v4 as uuid } from 'uuid'
+
+import Address from './Address'
+import HistoricTrainingSheet from "./HistoricTrainingSheet";
 
 @Entity('user')
 class User {
-  @PrimaryGeneratedColumn()
-  id: number
+  @PrimaryColumn('uuid')
+  id: string
 
   @Column()
-  username: string
+  username: string 
+
+  @Column()
+  name: string
+
+  @Column()
+  last_name: string
 
   @Column()
   password: string
 
-  @Column()
+  @Column({ unique: true })
   email: string
 
-  @CreateDateColumn()
+  @OneToOne(() => HistoricTrainingSheet)
+  @JoinTable()
+  historic_training: HistoricTrainingSheet
+
+  @CreateDateColumn({ type: 'timestamp' })
   created_at: Date
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamp' })
   updated_at: Date
+
+  constructor () {
+    if (!this.id) {
+      this.id = uuid()
+    }
+  }
 }
 
 export default User

@@ -88,7 +88,8 @@ export default {
     "@routes(.*)$": "<rootDir>/src/routes/$1",
     "@database(.*)$": "<rootDir>/src/database/$1",
     "@config(.*)$": "<rootDir>/src/config/$1",
-    "@middleware(.*)$": "<rootDir>/src/middleware/$1"
+    "@middleware(.*)$": "<rootDir>/src/middleware/$1",
+    "@utils(.*)$": "<rootDir>/src/utils/$1"
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader

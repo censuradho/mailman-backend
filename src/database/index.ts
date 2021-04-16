@@ -9,15 +9,11 @@ type Db = 'production' | 'test' | 'development'
 function getDatabase  () {
   const db = {
     production: 'production',
-    test: `${resolve(__dirname, '..', 'database', 'db.test.sqlite')}`,
+    test: 'test',
     development: 'development'
   }
 
   return db[process.env.NODE_ENV as Db]
-}
-
-function getType () {
-  return process.env.NODE_ENV === 'test' ? 'sqlite' : 'postgres'
 }
 
 export default async () => {
@@ -26,7 +22,6 @@ export default async () => {
   return await createConnection(
     Object.assign(options, {
       database: getDatabase(),
-      type: getType()
     })
   )
 }
